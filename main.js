@@ -30,24 +30,28 @@ btnSubmit.addEventListener("click", async () => {
   const formData = new FormData();
   formData.append("file", file);
   const timer = displayProcessing()
-  const resposne = await fetch("http://127.0.0.1:8000", {
-    method: 'POST',
-    body: formData,
-  });
-  let data = null;
-  const responseContentType = resposne.headers.get('Content-Type');
-  if (responseContentType === 'application/json') {
-    data = await resposne.json();
-  } else if (responseContentType === 'text/html') {
-    data = await resposne.text();
-  }
-  if (!resposne.ok) {
+  try {
+    const resposne = await fetch("http://127.0.0.1:8000", {
+      method: 'POST',
+      body: formData,
+    });
+    let data = null;
+    const responseContentType = resposne.headers.get('Content-Type');
+    if (responseContentType === 'application/json') {
+      data = await resposne.json();
+    } else if (responseContentType === 'text/html') {
+      data = await resposne.text();
+    }
+    if (!resposne.ok) {
+      displayError("Error occurs when predicting image");
+      console.log("[RESPONSE][ERROR]:", data);
+    } else {
+      displayText(data.result);
+    }
+  } catch (error) {
+    displayError(error.message);
+  } finally {
     clearInterval(timer);
-    displayError("Error occurs when predicting image");
-    console.log("[RESPONSE][ERROR]:", data);
-  } else {
-    clearInterval(timer);
-    displayText(data.result);
   }
 });
 
